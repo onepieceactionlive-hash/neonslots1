@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>💎 Neon Slots</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Orbitron', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            touch-action: pan-y;
+        }
+
+        .background-effect {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(131, 56, 236, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 50%, rgba(58, 134, 255, 0.1) 0%, transparent 50%);
+            animation: pulse 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .title {
+            font-size: 2em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .credits-display {
+            background: linear-gradient(135deg, #ffbe0b 0%, #fb5607 100%);
+            padding: 12px 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(255, 190, 11, 0.4);
+            animation: coinPop 0.3s ease-out;
+        }
+
+        @keyframes coinPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .credits-label {
+            font-size: 0.8em;
+            color: rgba(0, 0, 0, 0.7);
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .credits-amount {
+            font-size: 2em;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .payout-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .payout-title {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .payout-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .payout-item {
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .payout-item.three { background: rgba(255, 190, 11, 0.1); }
+        .payout-item.four { background: rgba(58, 134, 255, 0.1); }
+        .payout-item.five { background: rgba(255, 0, 110, 0.1); }
+        .payout-item.six { background: rgba(6, 255, 165, 0.1); }
+
+        .payout-emoji {
+            font-size: 1.5em;
+            margin-bottom: 3px;
+        }
+
+        .payout-multiplier {
+            font-weight: 900;
+            font-size: 1.2em;
+            margin-top: 3px;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+            perspective: 1000px;
+        }
+
+        .card {
+            aspect-ratio: 2/3;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            font-weight: 900;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .card.empty {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .card.flipping {
+            animation: flip 0.6s ease-in-out;
+        }
+
+        @keyframes flip {
+            0% { transform: rotateY(0deg) scale(1); }
+            50% { transform: rotateY(90deg) scale(0.95); }
+            100% { transform: rotateY(0deg) scale(1); }
+        }
+
+        .card.winning {
+            animation: glow 1s ease-in-out infinite;
+            border-color: #fff !important;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
+                transform: scale(1.05);
+            }
+        }
+
+        .bet-control {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bet-label {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .bet-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .bet-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 1.1em;
+            font-weight: 900;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Orbitron', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .bet-button:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .bet-display {
+            background: linear-gradient(135deg, #8338ec 0%, #3a86ff 100%);
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #fff;
+            min-width: 100px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(131, 56, 236, 0.4);
+        }
+
+        .spin-button {
+            width: 100%;
+            background: linear-gradient(135deg, #ff006e 0%, #8338ec 100%);
+            color: #fff;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.3em;
+            font-weight: 900;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(255, 0, 110, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 20px;
+            touch-action: manipulation;
+        }
+
+        .spin-button:active {
+            transform: scale(0.95);
+        }
+
+        .spin-button:disabled {
+            background: linear-gradient(135deg, #666 0%, #444 100%);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            animation: slideDown 0.5s ease-out;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 0, 110, 0.5);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-box.win {
+            background: linear-gradient(135deg, rgba(255, 0, 110, 0.2) 0%, rgba(131, 56, 236, 0.2) 100%);
+        }
+
+        .result-box.loss {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .result-title {
+            font-size: 2em;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+
+        .result-title.win { color: #ffbe0b; text-shadow: 0 0 20px rgba(255, 190, 11, 0.8); }
+        .result-title.loss { color: rgba(255, 255, 255, 0.6); }
+
+        .result-details {
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effect"></div>
+    
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="title">💎 NEON SLOTS</div>
+            <div class="credits-display" id="creditsDisplay">
+                <div class="credits-label">CREDITI</div>
+                <div class="credits-amount" id="creditsAmount">1000</div>
+            </div>
+        </div>
+
+        <!-- TABELLA PAGAMENTI -->
+        <div class="payout-table">
+            <div class="payout-title">💰 TABELLA PAGAMENTI (×Puntata)</div>
+            <div class="payout-grid">
+                <div class="payout-item three">
+                    <div class="payout-emoji">✨</div>
+                    <div>3 carte</div>
+                    <div class="payout-multiplier" style="color: #ffbe0b;">×10</div>
+                </div>
+                <div class="payout-item four">
+                    <div class="payout-emoji">⭐</div>
+                    <div>4 carte</div>
+                    <div class="payout-multiplier" style="color: #3a86ff;">×25</div>
+                </div>
+                <div class="payout-item five">
+                    <div class="payout-emoji">⭐⭐</div>
+                    <div>5 carte</div>
+                    <div class="payout-multiplier" style="color: #ff006e;">×150</div>
+                </div>
+                <div class="payout-item six">
+                    <div class="payout-emoji">💎</div>
+                    <div>6 carte</div>
+                    <div class="payout-multiplier" style="color: #06ffa5;">×500</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRIGLIA CARTE -->
+        <div class="game-board" id="gameBoard"></div>
+
+        <!-- CONTROLLO PUNTATA -->
+        <div class="bet-control">
+            <div class="bet-label">PUNTATA</div>
+            <div class="bet-buttons">
+                <button class="bet-button" onclick="minBet()">MIN</button>
+                <button class="bet-button" onclick="decreaseBet()">−</button>
+                <div class="bet-display" id="betDisplay">1</div>
+                <button class="bet-button" onclick="increaseBet()">+</button>
+                <button class="bet-button" onclick="maxBet()">MAX</button>
+            </div>
+        </div>
+
+        <!-- PULSANTE GIRA -->
+        <button class="spin-button" id="spinButton" onclick="spin()">🎲 GIRA ORA!</button>
+
+        <!-- RISULTATO -->
+        <div id="resultBox" style="display: none;"></div>
+
+        <!-- STATISTICHE -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalSpins" style="background: linear-gradient(135deg, #3a86ff, #06ffa5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0</div>
+                <div class="stat-label">Giri Totali</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="winRate" style="background: linear-gradient(135deg, #ff006e, #8338ec); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0%</div>
+                <div class="stat-label">Vittorie</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="biggestWin" style="background: linear-gradient(135deg, #ffbe0b, #fb5607); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0</div>
+                <div class="stat-label">Vincita Max</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="netProfit" style="color: #06ffa5;">0</div>
+                <div class="stat-label">Profitto</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // VARIABILI GLOBALI
+        let credits = 1000;
+        let bet = 1;
+        let cards = [];
+        let isSpinning = false;
+        let stats = {
+            totalSpins: 0,
+            totalWins: 0,
+            totalLosses: 0,
+            biggestWin: 0,
+            totalWinAmount: 0,
+            totalBetAmount: 0
+        };
+
+        const ROWS = 3;
+        const COLS = 6;
+        const PAYOUTS = { 3: 10, 4: 25, 5: 150, 6: 500 };
+
+        const COLORS = {
+            1: '#ff006e',
+            2: '#fb5607',
+            3: '#ffbe0b',
+            4: '#8338ec',
+            5: '#3a86ff',
+            6: '#06ffa5'
+        };
+
+        // INIZIALIZZA GRIGLIA
+        function initBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            for (let i = 0; i < ROWS * COLS; i++) {
+                const card = document.createElement('div');
+                card.className = 'card empty';
+                card.textContent = '?';
+                card.id = `card-${i}`;
+                board.appendChild(card);
+            }
+        }
+
+        // GENERA RIGA
+        function generateRow(forceNoWin = false) {
+            const baseNumber = Math.floor(Math.random() * 6) + 1;
+            const row = [];
+            
+            if (forceNoWin) {
+                const counts = {};
+                for (let i = 0; i < 6; i++) {
+                    let num;
+                    let attempts = 0;
+                    do {
+                        num = Math.floor(Math.random() * 6) + 1;
+                        attempts++;
+                        if (attempts > 50) {
+                            num = (i % 6) + 1;
+                            break;
+                        }
+                    } while (counts[num] >= 2);
+                    counts[num] = (counts[num] || 0) + 1;
+                    row.push(num);
+                }
+            } else {
+                const random = Math.random() * 100;
+                if (random < 5) {
+                    for (let i = 0; i < 6; i++) row.push(baseNumber);
+                } else if (random < 15) {
+                    for (let i = 0; i < 5; i++) row.push(baseNumber);
+                    let diff;
+                    do { diff = Math.floor(Math.random() * 6) + 1; } while (diff === baseNumber);
+                    row.push(diff);
+                    shuffle(row);
+                } else if (random < 35) {
+                    for (let i = 0; i < 4; i++) row.push(baseNumber);
+                    for (let i = 0; i < 2; i++) {
+                        let diff;
+                        do { diff = Math.floor(Math.random() * 6) + 1; } while (diff === baseNumber);
+                        row.push(diff);
+                    }
+                    shuffle(row);
+                } else if (random < 65) {
+                    for (let i = 0; i < 3; i++) row.push(baseNumber);
+                    for (let i = 0; i < 3; i++) {
+                        let diff;
+                        do { diff = Math.floor(Math.random() * 6) + 1; } while (diff === baseNumber);
+                        row.push(diff);
+                    }
+                    shuffle(row);
+                } else {
+                    const counts = {};
+                    for (let i = 0; i < 6; i++) {
+                        let num;
+                        let attempts = 0;
+                        do {
+                            num = Math.floor(Math.random() * 6) + 1;
+                            attempts++;
+                            if (attempts > 50) {
+                                num = (i % 6) + 1;
+                                break;
+                            }
+                        } while (counts[num] >= 2);
+                        counts[num] = (counts[num] || 0) + 1;
+                        row.push(num);
+                    }
+                }
+            }
+            return row;
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // GENERA TUTTE LE CARTE
+        function generateCards() {
+            const newCards = [];
+            const noWinSpin = Math.random() < 0.50;
+            
+            if (noWinSpin) {
+                for (let row = 0; row < ROWS; row++) {
+                    newCards.push(...generateRow(true));
+                }
+            } else {
+                for (let row = 0; row < ROWS; row++) {
+                    newCards.push(...generateRow(false));
+                }
+            }
+            return newCards;
+        }
+
+        // CONTROLLA VITTORIE
+        function checkWins(cardArray) {
+            const wins = [];
+            
+            for (let row = 0; row < ROWS; row++) {
+                const startIndex = row * COLS;
+                const rowCards = cardArray.slice(startIndex, startIndex + COLS);
+                
+                const counts = {};
+                rowCards.forEach(card => {
+                    counts[card] = (counts[card] || 0) + 1;
+                });
+                
+                const maxCount = Math.max(...Object.values(counts));
+                
+                if (maxCount >= 3) {
+                    const winningNumber = Object.keys(counts).find(
+                        num => counts[num] === maxCount
+                    );
+                    
+                    const winningIndices = [];
+                    rowCards.forEach((card, idx) => {
+                        if (card == winningNumber) {
+                            winningIndices.push(startIndex + idx);
+                        }
+                    });
+                    
+                    wins.push({
+                        row,
+                        number: winningNumber,
+                        count: maxCount,
+                        indices: winningIndices
+                    });
+                }
+            }
+            return wins;
+        }
+
+        // CALCOLA VINCITA
+        function calculateWinnings(wins) {
+            let totalWin = 0;
+            wins.forEach(win => {
+                totalWin += PAYOUTS[win.count] * bet;
+            });
+            return totalWin;
+        }
+
+        // GIRA
+        function spin() {
+            if (credits < bet) {
+                alert('Crediti insufficienti! 💸');
+                return;
+            }
+
+            if (isSpinning) return;
+            isSpinning = true;
+
+            document.getElementById('spinButton').disabled = true;
+            document.getElementById('resultBox').style.display = 'none';
+
+            credits -= bet;
+            updateCredits();
+
+            // Animazione flip
+            for (let i = 0; i < ROWS * COLS; i++) {
+                const card = document.getElementById(`card-${i}`);
+                card.classList.add('flipping');
+                card.classList.remove('winning');
+            }
+
+            setTimeout(() => {
+                cards = generateCards();
+                
+                for (let i = 0; i < cards.length; i++) {
+                    const card = document.getElementById(`card-${i}`);
+                    card.textContent = cards[i];
+                    card.className = 'card';
+                    card.style.background = `linear-gradient(135deg, ${COLORS[cards[i]]} 0%, ${COLORS[cards[i]]}dd 100%)`;
+                }
+
+                setTimeout(() => {
+                    const wins = checkWins(cards);
+                    const winAmount = calculateWinnings(wins);
+                    
+                    if (winAmount > 0) {
+                        credits += winAmount;
+                        updateCredits(true);
+                        
+                        // Evidenzia carte vincenti
+                        wins.forEach(win => {
+                            win.indices.forEach(idx => {
+                                document.getElementById(`card-${idx}`).classList.add('winning');
+                            });
+                        });
+                    }
+
+                    // Aggiorna statistiche
+                    stats.totalSpins++;
+                    if (wins.length > 0) stats.totalWins++;
+                    else stats.totalLosses++;
+                    stats.biggestWin = Math.max(stats.biggestWin, winAmount);
+                    stats.totalWinAmount += winAmount;
+                    stats.totalBetAmount += bet;
+                    updateStats();
+
+                    // Mostra risultato
+                    showResult(wins, winAmount);
+
+                    document.getElementById('spinButton').disabled = false;
+                    isSpinning = false;
+                }, 400);
+            }, 600);
+        }
+
+        // MOSTRA RISULTATO
+        function showResult(wins, winAmount) {
+            const resultBox = document.getElementById('resultBox');
+            resultBox.style.display = 'block';
+
+            if (winAmount > 0) {
+                resultBox.className = 'result-box win';
+                let html = `<div class="result-title win">🎉 HAI VINTO ${winAmount} CREDITI! 🎉</div>`;
+                wins.forEach(win => {
+                    const emoji = win.count === 6 ? '💎' : win.count === 5 ? '⭐⭐' : win.count === 4 ? '⭐' : '✨';
+                    html += `<div class="result-details">${emoji} Riga ${win.row + 1}: ${win.count} carte [${win.number}] = <span style="color: #ffbe0b;">+${PAYOUTS[win.count] * bet} crediti</span></div>`;
+                });
+                resultBox.innerHTML = html;
+            } else {
+                resultBox.className = 'result-box loss';
+                resultBox.innerHTML = `<div class="result-title loss">😔 Nessuna vincita (-${bet} crediti)</div>`;
+            }
+        }
+
+        // AGGIORNA CREDITI
+        function updateCredits(animate = false) {
+            document.getElementById('creditsAmount').textContent = credits;
+            if (animate) {
+                const display = document.getElementById('creditsDisplay');
+                display.style.animation = 'none';
+                setTimeout(() => {
+                    display.style.animation = 'coinPop 0.3s ease-out';
+                }, 10);
+            }
+        }
+
+        // AGGIORNA STATISTICHE
+        function updateStats() {
+            document.getElementById('totalSpins').textContent = stats.totalSpins;
+            const winRate = stats.totalSpins > 0 ? Math.round((stats.totalWins / stats.totalSpins) * 100) : 0;
+            document.getElementById('winRate').textContent = winRate + '%';
+            document.getElementById('biggestWin').textContent = stats.biggestWin;
+            const netProfit = stats.totalWinAmount - stats.totalBetAmount;
+            const profitEl = document.getElementById('netProfit');
+            profitEl.textContent = (netProfit >= 0 ? '+' : '') + netProfit;
+            profitEl.style.color = netProfit >= 0 ? '#06ffa5' : '#ff006e';
+        }
+
+        // CONTROLLI PUNTATA
+        function increaseBet() {
+            if (bet < 100) {
+                bet = Math.min(bet + 1, 100);
+                updateBet();
+            }
+        }
+
+        function decreaseBet() {
+            if (bet > 1) {
+                bet = Math.max(bet - 1, 1);
+                updateBet();
+            }
+        }
+
+        function maxBet() {
+            bet = Math.min(100, credits);
+            updateBet();
+        }
+
+        function minBet() {
+            bet = 1;
+            updateBet();
+        }
+
+        function updateBet() {
+            document.getElementById('betDisplay').textContent = bet;
+        }
+
+        // INIZIALIZZA AL CARICAMENTO
+        window.onload = function() {
+            initBoard();
+            updateCredits();
+            updateStats();
+            updateBet();
+        };
+    </script>
+</body>
+</html>
